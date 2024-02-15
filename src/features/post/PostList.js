@@ -5,11 +5,13 @@ import { useDispatch, useSelector } from "react-redux";
 import PostCard from "./PostCard";
 import { getPosts } from "./postSlice";
 
+import {} from "./postSlice";
 function PostList({ userId }) {
   const [page, setPage] = useState(1);
   const { currentPagePosts, postsById, isLoading, totalPosts } = useSelector(
     (state) => state.post
   );
+
   const posts = currentPagePosts.map((postId) => postsById[postId]);
   const dispatch = useDispatch();
 

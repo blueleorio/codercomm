@@ -59,11 +59,40 @@ const slice = createSlice({
       const { postId, reactions } = action.payload;
       state.postsById[postId].reactions = reactions;
     },
+
+    deletePostSuccess: (state, action) => {
+      state.isLoading = false;
+      state.error = null;
+      const postId = action.payload;
+      delete state.postsById[postId];
+      state.currentPagePosts = state.currentPagePosts.filter(
+        (id) => id !== postId
+      );
+      if (state.currentPagePosts.length % POSTS_PER_PAGE !== 0) {
+        state.currentPagePosts.pop();
+      }
+    },
+    deletePostFailure: (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
+    editPostSuccess: (state, action) => {
+      state.isLoading = false;
+      state.error = null;
+      const { id, updatedPost } = action.payload;
+      state.postsById[id] = updatedPost;
+    },
+
+    editPostFailure: (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
   },
 });
 
 export default slice.reducer;
 
+// Fetch Post
 export const getPosts =
   ({ userId, page = 1, limit = POSTS_PER_PAGE }) =>
   async (dispatch) => {
@@ -100,6 +129,37 @@ export const createPost =
       toast.error(error.message);
     }
   };
+
+export const deletePost = (postId) => async (dispatch) => {
+  dispatch(slice.actions.startLoading());
+  try {
+    await apiService.delete(`/posts/${postId}`);
+    dispatch(slice.actions.deletePostSuccess(postId));
+    toast.success("Post deleted successfully");
+  } catch (error) {
+    dispatch(slice.actions.deletePostFailure(error.message));
+    toast.error(error.message);
+  }
+};
+
+// Async action
+export const editPost = (id, content) => async (dispatch) => {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await apiService.put(`/posts/${id}`, { content });
+    if (response.data) {
+      dispatch(
+        slice.actions.editPostSuccess({ id, updatedPost: response.data })
+      );
+      toast.success("Post updated successfully");
+    } else {
+      throw new Error("Failed to update post");
+    }
+  } catch (error) {
+    dispatch(slice.actions.editPostFailure(error.message));
+    toast.error(error.message);
+  }
+};
 
 export const sendPostReaction =
   ({ postId, emoji }) =>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Link,
@@ -8,6 +8,10 @@ import {
   Typography,
   CardHeader,
   IconButton,
+  Menu,
+  MenuItem,
+  TextField,
+  Button,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { fDate } from "../../utils/formatTime";
@@ -17,7 +21,40 @@ import PostReaction from "./PostReaction";
 import CommentForm from "../comment/CommentForm";
 import CommentList from "../comment/CommentList";
 
+import { useDispatch } from "react-redux";
+import { deletePost, editPost } from "./postSlice";
 function PostCard({ post }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [content, setContent] = useState(post.content);
+  const dispatch = useDispatch();
+
+  const handlePostMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePostMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDelete = () => {
+    dispatch(deletePost(post._id));
+    handlePostMenuClose();
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    handlePostMenuClose();
+  };
+
+  const handleSave = () => {
+    dispatch(editPost(post._id, content));
+    setIsEditing(false);
+  };
+
+  const handleChange = (event) => {
+    setContent(event.target.value);
+  };
   return (
     <Card>
       <CardHeader
@@ -45,14 +82,33 @@ function PostCard({ post }) {
           </Typography>
         }
         action={
-          <IconButton>
-            <MoreVertIcon sx={{ fontSize: 30 }} />
-          </IconButton>
+          <div>
+            <IconButton onClick={handlePostMenuClick}>
+              <MoreVertIcon sx={{ fontSize: 30 }} />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handlePostMenuClose}
+            >
+              <MenuItem onClick={handleEdit}>Edit</MenuItem>
+              <MenuItem onClick={handleDelete}>Delete</MenuItem>
+            </Menu>
+          </div>
         }
       />
 
       <Stack spacing={2} sx={{ p: 3 }}>
-        <Typography>{post.content}</Typography>
+        {isEditing ? (
+          <>
+            <TextField value={content} onChange={handleChange} />
+            <Button variant="contained" color="primary" onClick={handleSave}>
+              Save
+            </Button>
+          </>
+        ) : (
+          <Typography>{post.content}</Typography>
+        )}
 
         {post.image && (
           <Box
