@@ -63,6 +63,12 @@ const slice = createSlice({
         }
       });
     },
+    editCommentSuccess: (state, action) => {
+      state.isLoading = false;
+      state.error = null;
+      const { id, updatedComment } = action.payload;
+      state.commentsById[id] = updatedComment;
+    },
   },
 });
 
@@ -115,6 +121,24 @@ export const deleteComment = (commentId) => async (dispatch) => {
   try {
     await apiService.delete(`/comments/${commentId}`);
     dispatch(slice.actions.deleteCommentSuccess(commentId));
+  } catch (error) {
+    dispatch(slice.actions.hasError(error.message));
+    toast.error(error.message);
+  }
+};
+
+export const editComment = (id, content) => async (dispatch) => {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await apiService.put(`/comments/${id}`, { content });
+    if (response.data) {
+      dispatch(
+        slice.actions.editCommentSuccess({ id, updatedComment: response.data })
+      );
+      toast.success("Comment updated successfully");
+    } else {
+      throw new Error("Failed to update comment");
+    }
   } catch (error) {
     dispatch(slice.actions.hasError(error.message));
     toast.error(error.message);

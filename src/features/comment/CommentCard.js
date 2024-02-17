@@ -9,6 +9,7 @@ import {
   Menu,
   MenuItem,
   TextField,
+  Button,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
@@ -16,12 +17,15 @@ import { fDate } from "../../utils/formatTime";
 import CommentReaction from "./CommentReaction";
 
 import { useDispatch } from "react-redux";
-import { deleteComment } from "./commentSlice";
+import { deleteComment, editComment } from "./commentSlice";
+import ConfirmationDialog from "../../components/ConfirmationDialog";
 
 function CommentCard({ comment }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [content, setContent] = useState(comment.content);
+  const [isEditing, setIsEditing] = useState(false);
+  const [content, setContent] = useState(comment.content);
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [currentOperation, setCurrentOperation] = useState(null);
   const dispatch = useDispatch();
 
   const handlePostMenuClick = (event) => {
@@ -32,28 +36,53 @@ function CommentCard({ comment }) {
     setAnchorEl(null);
   };
 
-  const handleDelete = () => {
-    if (comment._id) {
-      dispatch(deleteComment(comment._id));
-    } else {
-      console.error("Invalid comment ID");
-    }
-    handlePostMenuClose();
-  };
-
-  // const handleEdit = () => {
-  //   setIsEditing(true);
+  // const handleDelete = () => {
+  //   if (comment._id) {
+  //     dispatch(deleteComment(comment._id));
+  //   } else {
+  //     console.error("Invalid comment ID");
+  //   }
   //   handlePostMenuClose();
   // };
 
-  // const handleSave = () => {
-  //   dispatch(editComment(comment._id, content));
-  //   setIsEditing(false);
-  // };
+  const handleDeleteDialogOpen = () => {
+    setCurrentOperation("DELETE");
+    setDialogOpen(true);
+    handlePostMenuClose();
+  };
 
-  // const handleChange = (event) => {
-  //   setContent(event.target.value);
-  // };
+  const handleSaveDialogOpen = () => {
+    setCurrentOperation("SAVE");
+    setDialogOpen(true);
+    handlePostMenuClose();
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const handleConfirm = () => {
+    if (currentOperation === "DELETE") {
+      if (comment._id) {
+        dispatch(deleteComment(comment._id));
+      } else {
+        console.error("Invalid comment ID");
+      }
+    } else if (currentOperation === "SAVE") {
+      dispatch(editComment(comment._id, content));
+      setIsEditing(false);
+    }
+    handleDialogClose();
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    handlePostMenuClose();
+  };
+
+  const handleChange = (event) => {
+    setContent(event.target.value);
+  };
 
   return (
     <Stack direction="row" spacing={2}>
@@ -77,21 +106,42 @@ function CommentCard({ comment }) {
               open={Boolean(anchorEl)}
               onClose={handlePostMenuClose}
             >
-              <MenuItem onClick={handlePostMenuClose}>Edit</MenuItem>
-              <MenuItem onClick={handleDelete}>Delete</MenuItem>
+              <MenuItem onClick={handleEdit}>Edit</MenuItem>
+              <MenuItem onClick={handleDeleteDialogOpen}>Delete</MenuItem>
             </Menu>
           </Box>
           <Typography variant="caption" sx={{ color: "text.disabled" }}>
             {fDate(comment.createdAt)}
           </Typography>
         </Stack>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          {comment.content}
-        </Typography>
+
+        {isEditing ? (
+          <>
+            <TextField value={content} onChange={handleChange} />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSaveDialogOpen}
+            >
+              Save
+            </Button>
+          </>
+        ) : (
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            {comment.content}
+          </Typography>
+        )}
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <CommentReaction comment={comment} />
         </Box>
       </Paper>
+      <ConfirmationDialog
+        open={isDialogOpen}
+        handleClose={handleDialogClose}
+        onConfirm={handleConfirm}
+        confirmMessage={`Please type ${currentOperation} to confirm`}
+        confirmKeyword={currentOperation}
+      />
     </Stack>
   );
 }

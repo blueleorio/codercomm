@@ -51,10 +51,10 @@ function PostCard({ post }) {
     handlePostMenuClose();
   };
 
-  const handleSave = () => {
-    dispatch(editPost(post._id, content));
-    setIsEditing(false);
-  };
+  // const handleSave = () => {
+  //   dispatch(editPost(post._id, content));
+  //   setIsEditing(false);
+  // };
 
   const handleChange = (event) => {
     setContent(event.target.value);
