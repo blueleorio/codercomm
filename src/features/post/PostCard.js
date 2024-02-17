@@ -23,7 +23,7 @@ import CommentList from "../comment/CommentList";
 
 import { useDispatch } from "react-redux";
 import { deletePost, editPost } from "./postSlice";
-import DeleteConfirmationDialog from "../../components/DeleteConfirmationDialog";
+import ConfirmationDialog from "../../components/ConfirmationDialog";
 
 function PostCard({ post }) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -112,7 +112,7 @@ function PostCard({ post }) {
               <MenuItem onClick={handleEdit}>Edit</MenuItem>
               <MenuItem onClick={handleDeleteDialogOpen}>Delete</MenuItem>
             </Menu>
-            <DeleteConfirmationDialog
+            <ConfirmationDialog
               open={isDialogOpen}
               handleClose={handleDeleteDialogClose}
               onDelete={handleDeleteConfirm}

@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -7,7 +7,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 
-export default function DeleteConfirmationDialog({
+export default function ConfirmationDialog({
   open,
   handleClose,
   onDelete,
@@ -55,10 +55,10 @@ export default function DeleteConfirmationDialog({
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">
-          Cancel
+          Shoo
         </Button>
         <Button onClick={handleDelete} color="primary" autoFocus>
-          Delete
+          Nuke
         </Button>
       </DialogActions>
     </Dialog>
