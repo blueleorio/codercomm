@@ -10,15 +10,15 @@ import TextField from "@mui/material/TextField";
 export default function ConfirmationDialog({
   open,
   handleClose,
-  onDelete,
+  onConfirm,
   confirmMessage,
   confirmKeyword,
 }) {
   const [inputValue, setInputValue] = useState("");
 
-  const handleDelete = () => {
+  const handleConfirm = () => {
     if (inputValue === confirmKeyword) {
-      onDelete();
+      onConfirm();
       handleClose();
     } else {
       alert(`Please type ${confirmKeyword} to confirm`);
@@ -36,7 +36,7 @@ export default function ConfirmationDialog({
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">{"Confirm Operation"}</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
           {confirmMessage}
@@ -55,10 +55,10 @@ export default function ConfirmationDialog({
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">
-          Shoo
+          Cancel
         </Button>
-        <Button onClick={handleDelete} color="primary" autoFocus>
-          Nuke
+        <Button onClick={handleConfirm} color="primary" autoFocus>
+          Confirm
         </Button>
       </DialogActions>
     </Dialog>

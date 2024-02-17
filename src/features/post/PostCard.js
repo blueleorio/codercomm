@@ -61,17 +61,29 @@ function PostCard({ post }) {
   };
 
   const handleDeleteDialogOpen = () => {
+    setCurrentOperation("DELETE");
     setDialogOpen(true);
     handlePostMenuClose();
   };
 
-  const handleDeleteDialogClose = () => {
+  const handleSaveDialogOpen = () => {
+    setCurrentOperation("SAVE");
+    setDialogOpen(true);
+    handlePostMenuClose();
+  };
+
+  const handleDialogClose = () => {
     setDialogOpen(false);
   };
 
-  const handleDeleteConfirm = () => {
-    dispatch(deletePost(post._id));
-    handleDeleteDialogClose();
+  const handleConfirm = () => {
+    if (currentOperation === "DELETE") {
+      dispatch(deletePost(post._id));
+    } else if (currentOperation === "SAVE") {
+      dispatch(editPost(post._id, content));
+      setIsEditing(false);
+    }
+    handleDialogClose();
   };
   return (
     <Card>
@@ -112,13 +124,6 @@ function PostCard({ post }) {
               <MenuItem onClick={handleEdit}>Edit</MenuItem>
               <MenuItem onClick={handleDeleteDialogOpen}>Delete</MenuItem>
             </Menu>
-            <ConfirmationDialog
-              open={isDialogOpen}
-              handleClose={handleDeleteDialogClose}
-              onDelete={handleDeleteConfirm}
-              confirmMessage="Please type DELETE to confirm deletion"
-              confirmKeyword="DELETE"
-            />
           </div>
         }
       />
@@ -127,13 +132,24 @@ function PostCard({ post }) {
         {isEditing ? (
           <>
             <TextField value={content} onChange={handleChange} />
-            <Button variant="contained" color="primary" onClick={handleSave}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSaveDialogOpen}
+            >
               Save
             </Button>
           </>
         ) : (
           <Typography>{post.content}</Typography>
         )}
+        <ConfirmationDialog
+          open={isDialogOpen}
+          handleClose={handleDialogClose}
+          onConfirm={handleConfirm}
+          confirmMessage={`Please type ${currentOperation} to confirm`}
+          confirmKeyword={currentOperation}
+        />
 
         {post.image && (
           <Box
