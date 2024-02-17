@@ -7,15 +7,17 @@ import {
   Pagination,
   Grid,
   Container,
+  Button,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { getFriendRequests } from "./friendSlice";
+import { getFriendRequests, getFriendRequestsOutgoing } from "./friendSlice";
 import UserCard from "./UserCard";
 import SearchInput from "../../components/SearchInput";
 
 function FriendRequests() {
   const [filterName, setFilterName] = useState("");
   const [page, setPage] = React.useState(1);
+  const [requestType, setRequestType] = useState("incoming");
 
   const { currentPageUsers, usersById, totalUsers, totalPages } = useSelector(
     (state) => state.friend
@@ -28,14 +30,26 @@ function FriendRequests() {
   };
 
   useEffect(() => {
-    dispatch(getFriendRequests({ filterName, page }));
-  }, [filterName, page, dispatch]);
+    if (requestType === "incoming") {
+      dispatch(getFriendRequests({ filterName, page }));
+    } else {
+      dispatch(getFriendRequestsOutgoing({ filterName, page }));
+    }
+  }, [filterName, page, requestType, dispatch]);
+
+  const toggleRequestType = () => {
+    // New function to toggle the request type
+    setRequestType(requestType === "incoming" ? "outgoing" : "incoming");
+  };
 
   return (
     <Container>
       <Typography variant="h4" sx={{ mb: 3 }}>
         Friend Requests
       </Typography>
+      <Button onClick={toggleRequestType} variant="contained" color="primary">
+        {requestType === "incoming" ? "Outgoing" : "Incoming"} Requests
+      </Button>
       <Card sx={{ p: 3 }}>
         <Stack spacing={2}>
           <Stack direction={{ xs: "column", md: "row" }} alignItems="center">
