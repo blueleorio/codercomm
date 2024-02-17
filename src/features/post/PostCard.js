@@ -23,10 +23,14 @@ import CommentList from "../comment/CommentList";
 
 import { useDispatch } from "react-redux";
 import { deletePost, editPost } from "./postSlice";
+import DeleteConfirmationDialog from "../../components/DeleteConfirmationDialog";
+
 function PostCard({ post }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState(post.content);
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [currentOperation, setCurrentOperation] = useState(null);
   const dispatch = useDispatch();
 
   const handlePostMenuClick = (event) => {
@@ -37,10 +41,10 @@ function PostCard({ post }) {
     setAnchorEl(null);
   };
 
-  const handleDelete = () => {
-    dispatch(deletePost(post._id));
-    handlePostMenuClose();
-  };
+  // const handleDelete = () => {
+  //   dispatch(deletePost(post._id));
+  //   handlePostMenuClose();
+  // };
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -54,6 +58,20 @@ function PostCard({ post }) {
 
   const handleChange = (event) => {
     setContent(event.target.value);
+  };
+
+  const handleDeleteDialogOpen = () => {
+    setDialogOpen(true);
+    handlePostMenuClose();
+  };
+
+  const handleDeleteDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    dispatch(deletePost(post._id));
+    handleDeleteDialogClose();
   };
   return (
     <Card>
@@ -92,8 +110,15 @@ function PostCard({ post }) {
               onClose={handlePostMenuClose}
             >
               <MenuItem onClick={handleEdit}>Edit</MenuItem>
-              <MenuItem onClick={handleDelete}>Delete</MenuItem>
+              <MenuItem onClick={handleDeleteDialogOpen}>Delete</MenuItem>
             </Menu>
+            <DeleteConfirmationDialog
+              open={isDialogOpen}
+              handleClose={handleDeleteDialogClose}
+              onDelete={handleDeleteConfirm}
+              confirmMessage="Please type DELETE to confirm deletion"
+              confirmKeyword="DELETE"
+            />
           </div>
         }
       />
